@@ -8,7 +8,7 @@
     "test:e2e": "jest --config=jest.e2e.config.js tests/e2e.test.js",
     "perf": "node ./tests/perf/perf.js",
     "start": "node server.js",
-    "dev": "nodemon start.js",
+    "dev": "node server.js",
     "test:http": "node testApi.js"
   },
   "jest": {
