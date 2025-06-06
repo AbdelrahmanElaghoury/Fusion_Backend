@@ -11,6 +11,7 @@ const cartRouter            = require('./routes/cartRoutes');
 const orderRouter           = require('./routes/orderRoutes');
 const profileRouter         = require('./routes/profileRoutes');
 const mainConcernsRoutes    = require("./routes/mainConcernsRoutes");
+const newPipelineRoutes     = require("./routes/newPipelineRoutes");
 const { errorHandler }      = require('./middleware/errorHandler');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/cart',          cartRouter);
 app.use('/api/orders',        orderRouter);
 app.use('/api/profile',       profileRouter);
 app.use("/api/main-concerns", mainConcernsRoutes);
+app.use("/api/new-pipelines", newPipelineRoutes);
 app.use(errorHandler);
 
 module.exports = app;
