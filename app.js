@@ -12,6 +12,7 @@ const orderRouter           = require('./routes/orderRoutes');
 const profileRouter         = require('./routes/profileRoutes');
 const mainConcernsRoutes    = require("./routes/mainConcernsRoutes");
 const newPipelineRoutes     = require("./routes/newPipelineRoutes");
+const servicesRoutes        = require('./routes/servicesRoutes');
 const { errorHandler }      = require('./middleware/errorHandler');
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/orders',        orderRouter);
 app.use('/api/profile',       profileRouter);
 app.use("/api/main-concerns", mainConcernsRoutes);
 app.use("/api/new-pipelines", newPipelineRoutes);
+app.use('/api/services',      servicesRoutes);
 app.use(errorHandler);
 
 module.exports = app;
