@@ -1,5 +1,4 @@
 // middleware/authMiddleware.js
-
 const asyncHandler = require('express-async-handler');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
@@ -7,7 +6,6 @@ const User = require('../models/userModel');
 exports.protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  // Accept JWT from Authorization header or from cookie
   if (req.headers.authorization?.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   } else if (req.cookies && req.cookies.token) {
@@ -26,3 +24,12 @@ exports.protect = asyncHandler(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+exports.restrictTo = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    next();
+  };
+};
