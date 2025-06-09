@@ -1,7 +1,7 @@
 // controllers/orderController.js
 const asyncHandler = require('express-async-handler');
-const Order        = require('../models/orderModel');
-const Product      = require('../models/productModel');
+const Order = require('../models/orderModel');
+const Product = require('../models/productModel');
 
 // @desc   List orders for the current user
 // @route  GET /api/orders
@@ -46,34 +46,40 @@ exports.createOrder = asyncHandler(async (req, res) => {
   // validate each product
   for (const it of incoming) {
     const prodId = it.product || it.productId;
-    const qty    = it.quantity || it.qty || 1;
+    const qty = it.quantity || it.qty || 1;
     const product = await Product.findById(prodId);
     if (!product) {
       res.status(404);
       throw new Error(`Product not found: ${prodId}`);
     }
     items.push({
-      product:  product._id,
+      product: product._id,
       quantity: qty,
-      price:    product.price
+      price: product.price,
     });
     subtotal += product.price * qty;
   }
 
   // compute total
-  const extraFee   = typeof paymentDetails.doctorFee === 'number'
-    ? paymentDetails.doctorFee
-    : 0;
+  const extraFee = typeof paymentDetails.doctorFee === 'number' ? paymentDetails.doctorFee : 0;
   const totalAmount = subtotal + extraFee;
 
   const order = await Order.create({
-    user:           req.user._id,
+    user: req.user._id,
     items,
     totalAmount,
-    paymentDetails
+    paymentDetails,
   });
 
   res.status(201).json(order);
+});
+
+// @desc   Admin only: get all orders
+// @route  GET /api/orders/all
+// @access Private/Admin
+exports.getAllOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.find({}).populate('user', 'email firstName lastName role');
+  res.json(orders);
 });
 
 // @desc   Admin only: update an order's status
@@ -94,8 +100,8 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
 // @access Private
 exports.cancelOrder = asyncHandler(async (req, res) => {
   const result = await Order.deleteOne({
-    _id:  req.params.id,
-    user: req.user._id
+    _id: req.params.id,
+    user: req.user._id,
   });
   if (result.deletedCount === 0) {
     return res.status(404).json({ message: 'Order not found' });

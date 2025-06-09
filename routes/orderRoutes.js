@@ -1,5 +1,5 @@
 // routes/orderRoutes.js
-const express          = require('express');
+const express = require('express');
 const { protect, restrictTo } = require('../middleware/authMiddleware');
 const {
   getOrders,
@@ -7,11 +7,12 @@ const {
   createOrder,
   updateOrderStatus,
   cancelOrder,
+  getAllOrders, // Import the new controller function
 } = require('../controllers/orderController');
 
 const router = express.Router();
 
-// all order routes are protected
+// All routes below require authentication
 router.use(protect);
 
 // GET   /api/orders         → list this user's orders
@@ -20,6 +21,11 @@ router
   .route('/')
   .get(getOrders)
   .post(createOrder);
+
+// GET   /api/orders/all     → admin only, list all orders
+router
+  .route('/all')
+  .get(restrictTo('admin'), getAllOrders);
 
 // GET   /api/orders/:id     → fetch a single order
 // DELETE /api/orders/:id    → cancel (delete) an order
