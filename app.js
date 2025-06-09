@@ -22,7 +22,7 @@ const app = express();
 // CORS before anything else, with credentials!
 app.use(
   cors({
-    origin: "http://localhost:3000", // <-- Change to your frontend URL in prod
+    origin: "http://localhost:5173", // <-- Change to your frontend URL in prod
     credentials: true,
   })
 );
