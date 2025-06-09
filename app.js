@@ -2,6 +2,7 @@
 const express               = require('express');
 const cors                  = require('cors');
 const morgan                = require('morgan');
+const cookieParser          = require('cookie-parser');
 const authRouter            = require('./routes/authRoutes');
 const userRouter            = require('./routes/usersRoutes');
 const productRouter         = require('./routes/productRoutes');
@@ -17,10 +18,21 @@ const { errorHandler }      = require('./middleware/errorHandler');
 
 const app = express();
 
-app.use(cors());
+// ---- MIDDLEWARE ----
+// CORS before anything else, with credentials!
+app.use(
+  cors({
+    origin: "http://localhost:3000", // <-- Change to your frontend URL in prod
+    credentials: true,
+  })
+);
+
+// Parse JSON body and cookies before routers
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
 
+// ---- ROUTES ----
 app.use('/api/auth',          authRouter);
 app.use('/api/users',         userRouter);
 app.use('/api/products',      productRouter);
@@ -32,6 +44,8 @@ app.use('/api/profile',       profileRouter);
 app.use("/api/main-concerns", mainConcernsRoutes);
 app.use("/api/new-pipelines", newPipelineRoutes);
 app.use('/api/services',      servicesRoutes);
+
+// ---- ERROR HANDLER LAST ----
 app.use(errorHandler);
 
 module.exports = app;

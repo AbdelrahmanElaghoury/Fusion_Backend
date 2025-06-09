@@ -23,6 +23,7 @@
   "dependencies": {
     "axios": "^1.9.0",
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -37,7 +38,7 @@
     "@faker-js/faker": "^9.7.0",
     "autocannon": "^8.0.0",
     "cross-env": "^7.0.3",
-    "faker": "^6.6.6",
+    "faker": "^5.5.3",
     "jest": "^29.7.0",
     "mongodb-memory-server": "^10.1.4",
     "supertest": "^7.1.0"

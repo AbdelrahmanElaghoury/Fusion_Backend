@@ -1,12 +1,11 @@
 const asyncHandler = require('express-async-handler');
-const jwt          = require('jsonwebtoken');
-const User         = require('../models/userModel');
-const Profile      = require('../models/profileModel');
+const jwt = require('jsonwebtoken');
+const User = require('../models/userModel');
+const Profile = require('../models/profileModel');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-// @route POST /api/auth/signup
 exports.signup = asyncHandler(async (req, res) => {
   const { email, password, firstName, lastName, role } = req.body;
   if (!email || !password || !firstName) {
@@ -15,23 +14,25 @@ exports.signup = asyncHandler(async (req, res) => {
   if (await User.findOne({ email })) {
     return res.status(400).json({ message: 'User already exists' });
   }
-
-  // Create user (allow tests to pass in role='admin' if desired)
   const user = await User.create({ email, password, firstName, lastName, role });
-
-  // **Eagerly bootstrap an empty Profile** so downstream routes never have to "auto-create" it
   await Profile.create({ user: user._id });
-
   const token = signToken(user._id);
+
+  // Set HTTP-only cookie:
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // set true in prod
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
+
   res.status(201).json({
     message: 'User created',
-    token,
-    userId: user._id,
-    role:   user.role
+    user: { email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role }
+    // Don't need to return the token here unless you want to support localStorage as fallback
   });
 });
 
-// @route POST /api/auth/login
 exports.login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email }).select('+password');
@@ -39,10 +40,24 @@ exports.login = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
   const token = signToken(user._id);
+
+  // Set HTTP-only cookie:
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // set true in prod
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
+
   res.json({
     message: 'Logged in!',
-    token,
-    userId: user._id,
-    role:   user.role
+    user: { email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role }
+    // Don't need to return the token here unless you want to support localStorage as fallback
   });
 });
+
+// LOGOUT: Just clear the cookie
+exports.logout = (req, res) => {
+  res.clearCookie('token');
+  res.json({ message: 'Logged out' });
+};

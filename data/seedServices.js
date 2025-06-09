@@ -13,11 +13,11 @@ const categories = [
   },
   {
     name: "Dermatology",
-    services: ["Dark Spots", "Anti Aging", "Aging Hair", "Scars"],
+    services: ["Dark Spots", "Anti-Aging", "Aging-Hair", "Scars"],
   },
   {
     name: "Veterinary",
-    services: [],
+    services: ["TBD"],
   },
 ];
 
