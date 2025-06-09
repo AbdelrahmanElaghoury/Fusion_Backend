@@ -8,11 +8,11 @@ const Profile      = require('../models/profileModel');
  */
 exports.getProfile = asyncHandler(async (req, res) => {
   let profile = await Profile.findOne({ user: req.user._id })
-                             .populate('user','email firstName lastName');
+                             .populate('user','email firstName lastName role'); // <--- add role
 
   if (!profile) {
     profile = await Profile.create({ user: req.user._id });
-    await profile.populate('user','email firstName lastName');
+    await profile.populate('user','email firstName lastName role');
   }
 
   res.json({
@@ -20,6 +20,7 @@ exports.getProfile = asyncHandler(async (req, res) => {
     email:          profile.user.email,
     firstName:      profile.user.firstName,
     lastName:       profile.user.lastName,
+    role:           profile.user.role, // <--- add role
     addresses:      profile.addresses,
     paymentMethods: profile.paymentMethods,
     incompleteVisit: profile.incompleteVisit
@@ -42,13 +43,14 @@ exports.updateProfile = asyncHandler(async (req, res) => {
     { user: req.user._id },
     { $set: updates },
     { new: true, upsert: true }
-  ).populate('user','email firstName lastName');
+  ).populate('user','email firstName lastName role'); // <--- add role
 
   res.json({
     userId:         profile.user._id.toString(),
     email:          profile.user.email,
     firstName:      profile.user.firstName,
     lastName:       profile.user.lastName,
+    role:           profile.user.role, // <--- add role
     addresses:      profile.addresses,
     paymentMethods: profile.paymentMethods,
     incompleteVisit: profile.incompleteVisit
@@ -64,7 +66,7 @@ exports.addAddress = asyncHandler(async (req, res) => {
     { user: req.user._id },
     { $push: { addresses: req.body } },
     { new: true, upsert: true }
-  );
+  ).populate('user','email firstName lastName role');
   res.status(201).json(profile);
 });
 
@@ -74,7 +76,7 @@ exports.addAddress = asyncHandler(async (req, res) => {
  */
 exports.removeAddress = asyncHandler(async (req, res) => {
   const idx = parseInt(req.params.index, 10);
-  const profile = await Profile.findOne({ user: req.user._id });
+  const profile = await Profile.findOne({ user: req.user._id }).populate('user','email firstName lastName role');
   if (!profile || !profile.addresses[idx]) {
     return res.status(404).json({ message: 'Address not found' });
   }
@@ -92,7 +94,7 @@ exports.startVisit = asyncHandler(async (req, res) => {
     { user: req.user._id },
     { $set: { incompleteVisit: true } },
     { new: true, upsert: true }
-  );
+  ).populate('user','email firstName lastName role');
   res.json({ incompleteVisit: profile.incompleteVisit });
 });
 
@@ -105,6 +107,6 @@ exports.clearVisit = asyncHandler(async (req, res) => {
     { user: req.user._id },
     { $set: { incompleteVisit: false } },
     { new: true }
-  );
+  ).populate('user','email firstName lastName role');
   res.json({ incompleteVisit: profile.incompleteVisit });
 });
