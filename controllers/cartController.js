@@ -1,4 +1,3 @@
-// controllers/cartController.js
 const asyncHandler = require('express-async-handler');
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
@@ -29,7 +28,7 @@ exports.getCart = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Add item or increment quantity
+// @desc    Add item or increment quantity (NO full cart returned!)
 // @route   POST /api/cart
 // @access  Private
 exports.addToCart = asyncHandler(async (req, res) => {
@@ -51,15 +50,11 @@ exports.addToCart = asyncHandler(async (req, res) => {
   }
 
   await cart.save();
-  // Populate before response!
-  await cart.populate('items.product');
-  res.status(201).json({
-    user: cart.user,
-    items: formatCartItems(cart.items),
-  });
+  // Don't populate, don't return cart data
+  res.status(201).json({ success: true });
 });
 
-// @desc    Update item quantity
+// @desc    Update item quantity (NO full cart returned!)
 // @route   PUT /api/cart/:productId
 // @access  Private
 exports.updateCartItem = asyncHandler(async (req, res) => {
@@ -80,14 +75,10 @@ exports.updateCartItem = asyncHandler(async (req, res) => {
 
   item.quantity = quantity;
   await cart.save();
-  await cart.populate('items.product');
-  res.json({
-    user: cart.user,
-    items: formatCartItems(cart.items),
-  });
+  res.json({ success: true });
 });
 
-// @desc    Remove single item
+// @desc    Remove single item (NO full cart returned!)
 // @route   DELETE /api/cart/:productId
 // @access  Private
 exports.removeCartItem = asyncHandler(async (req, res) => {
@@ -101,14 +92,10 @@ exports.removeCartItem = asyncHandler(async (req, res) => {
 
   cart.items = cart.items.filter(item => item.product.toString() !== productId);
   await cart.save();
-  await cart.populate('items.product');
-  res.json({
-    user: cart.user,
-    items: formatCartItems(cart.items),
-  });
+  res.json({ success: true });
 });
 
-// @desc    Clear entire cart
+// @desc    Clear entire cart (NO full cart returned!)
 // @route   DELETE /api/cart
 // @access  Private
 exports.clearCart = asyncHandler(async (req, res) => {
@@ -118,9 +105,5 @@ exports.clearCart = asyncHandler(async (req, res) => {
     cart.items = [];
     await cart.save();
   }
-  await cart.populate('items.product');
-  res.status(201).json({
-    user: cart.user,
-    items: formatCartItems(cart.items),
-  });
+  res.status(201).json({ success: true });
 });
